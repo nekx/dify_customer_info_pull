@@ -9,7 +9,7 @@
 // @updateURL https://raw.githubusercontent.com/nekx/dify_customer_info_pull/776831ac79fcc2c4637128b0a3d493836fe553b2/tampermonkey_script.user.js?token=AD74VBEDAFGM3PRIKHI563TADWLCE
 // @downloadURL https://raw.githubusercontent.com/nekx/dify_customer_info_pull/776831ac79fcc2c4637128b0a3d493836fe553b2/tampermonkey_script.user.js?token=AD74VBEDAFGM3PRIKHI563TADWLCE
 // @grant    GM_setClipboard
-// @version 1.0
+// @version 1.1
 // ==/UserScript==
 // TEST
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
