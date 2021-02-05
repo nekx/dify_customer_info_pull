@@ -6,8 +6,8 @@
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
-// @updateURL https://raw.githubusercontent.com/nekx/dify_customer_info_pull/776831ac79fcc2c4637128b0a3d493836fe553b2/tampermonkey_script.user.js?token=AD74VBEDAFGM3PRIKHI563TADWLCE
-// @downloadURL https://raw.githubusercontent.com/nekx/dify_customer_info_pull/776831ac79fcc2c4637128b0a3d493836fe553b2/tampermonkey_script.user.js?token=AD74VBEDAFGM3PRIKHI563TADWLCE
+// @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
+// @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
 // @version 1.1
 // ==/UserScript==
