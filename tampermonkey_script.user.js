@@ -9,9 +9,9 @@
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 1.1
+// @version 1.2
 // ==/UserScript==
-// TEST
+
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
 var target = document.querySelector('title');
 
