@@ -11,44 +11,43 @@
 // @grant    GM_setClipboard
 // ==/UserScript==
 
-
-// select the target node
+// checks for changes to the title, waits 2 seconds and runs checkLocation()
 var target = document.querySelector('title');
 
-// create an observer instance
 var observer = new MutationObserver(function(mutations) {
-    // We need only first event and only new value of the title
     setTimeout(checkLocation, 2000);
 });
 
-// configuration of the observer:
 var config = { subtree: true, characterData: true, childList: true };
 
-// pass in the target node, as well as the observer options
 observer.observe(target, config);
+
 function checkLocation(){
     if ( "#/clients" === window.location.hash ){
-        console.log(window.location.hash);
-        console.log('failed test');
         return false;
     }
     else if ( window.location.hash.includes("#/clients/") ){
-        console.log(window.location.hash);
-        console.log('passed test');
         waitForKeyElements ("#single-client-view-business-name", getNodeText);
 
         function getNodeText (jNode) {
-
+          
             var clientName = document.getElementById('single-client-view-business-name').innerText;
 
-            var clientID = location.hash.slice(10);
+            var clientID =  window.location.hash.split("/").slice(-2, -1).toString()
 
             var companyID = localStorage.companyId;
 
             var companyName = companies[companyID]["name"];
-
-            var info = "Client name: " + clientName + ",\nClient ID: " + clientID + ",\nCompany ID: " + companyID + ",\nCompany name: " + companyName;
-
+          
+         	if (window.location.hash.split("/").pop() === "social"){
+              	var facebook_page_ID = $("a.line-height-pic").attr('href').split("/").pop();
+				var ad_account_ID = $("a.partner-color").attr('href').split("=").pop(); 
+              	var info = "Client name: " + clientName + ",\nClient ID: " + clientID + ",\nCompany ID: " + companyID + ",\nCompany name: " + companyName + ",\nFacebook Page ID: " + facebook_page_ID + ",\nAd Account ID: " + ad_account_ID;
+            }
+			else{
+            	var info = "Client name: " + clientName + ",\nClient ID: " + clientID + ",\nCompany ID: " + companyID + ",\nCompany name: " + companyName;
+            };
+          
             var clientImg = document.getElementsByClassName("account-img")[0];
 
             clientImg.addEventListener("click", function (event) {
