@@ -11,7 +11,7 @@
 // @grant    GM_setClipboard
 // @version 1.0
 // ==/UserScript==
-
+// TEST
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
 var target = document.querySelector('title');
 
