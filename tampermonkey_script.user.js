@@ -10,7 +10,7 @@
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
-// @version 2.0
+// @version 2.1
 // ==/UserScript==
 
 var data = null;
@@ -101,7 +101,7 @@ function campaignCopy (){
     var campaign_IDs = $('a:hidden[data-bind*="campaigns/"]').map(function(i,el) { return $(el).attr('href').split("/").slice(-2, -1).toString(); }).get();
 
     $.each(campaign_names, function( index ) {
-        $(this).click(function(){gatherCopy(campaign_IDs[index])})
+        $(this).click(function(){clipboardCopy(campaign_IDs[index])})
         $(this).attr('title', campaign_IDs[index]);
     });
     return false;
