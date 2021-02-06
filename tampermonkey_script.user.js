@@ -37,6 +37,7 @@ color: white;                                           \
 cursor:                 pointer;                        \
 margin:                 1em 1em 0;                      \
 border:                 1px outset buttonface;          \
+border-radius: 		5px;				\
 background: white;                                      \
 color: black;                                           \
 }                                                       \
