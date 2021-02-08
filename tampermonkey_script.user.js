@@ -6,78 +6,25 @@
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
+// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.html
+// @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.css
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
+// @grant    GM_getResourceText
 // @version 2.1
 // ==/UserScript==
 
-var data = null;
-var social_check = false;
+var data = null;                                         // contains all copy-able data for the popup
+var social_check = false;                                // Marker for the social page
+var cssTemplate = GM_getResourceText ("cssTemplate");    // css template
+var htmlTemplate = GM_getResourceText ("htmlTemplate");  // html template
 
-    //--- CSS styles make it work...
-    GM_addStyle ( "                                     \
-#gmPopupContainer {                                     \
-position:               fixed;                          \
-top:                    30%;                            \
-left:                   20%;                            \
-padding:                2em;                            \
-background: -webkit-linear-gradient(top, #0fb2ef 0%, #00a3e0 100%); \
-background: -moz-linear-gradient(top, #0fb2ef 0%, #00a3e0 100%); \
-background: -o-linear-gradient(top, #0fb2ef 0%, #00a3e0 100%); \
-background: -ms-linear-gradient(top, #0fb2ef 0%, #00a3e0 100%); \
-background: linear-gradient(top, #0fb2ef 0%, #00a3e0 100%); \
-border:                 3px double black;               \
-border-radius:          1ex;                            \
-z-index:                777;                            \
-color: white;                                           \
-}                                                       \
-#gmPopupContainer button{                               \
-cursor:                 pointer;                        \
-margin:                 1em 1em 0;                      \
-border:                 1px outset buttonface;          \
-border-radius: 		5px;				\
-background: white;                                      \
-color: black;                                           \
-}                                                       \
-#gmPopupContainer label{                                \
-display:                inline;                         \
-}                                                       \
-" );
-
-function checkLocation(){
+GM_addStyle ( cssTemplate );                             // applies cssTemplate
 
 
-    if ( "#/clients" === window.location.hash ){
-        return false;
-    }
-    else if ( window.location.hash.includes("#/clients/") ){
-        waitForKeyElements ("#single-client-view-business-name", gatherData);
-
-        function gatherData () {
-            social_check = false;
-            data = {
-                "clientName" : document.getElementById('single-client-view-business-name').innerText,
-                "clientID" : null,
-                "companyID" : localStorage.companyId,
-                "companyName" : null,
-                "facebook_page_ID" : null,
-                "ad_account_ID" : null
-            };
-            data["companyName"] = companies[data["companyID"]]["name"];
-
-         	if (window.location.hash.split("/").pop() === "social"){
-                waitForKeyElements ("a.partner-color", fbDataGather);
-                social_check = true;
-            }
-			else{
-                waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy);
-            }
-            waitForKeyElements ('.account-img', addEventListeners)
-        }
-    }
-  }
+// adds the gatherCopy function as click events to the client image
 function addEventListeners(){
     var clientImg = document.getElementsByClassName("account-img")[0];
 
@@ -89,16 +36,10 @@ function addEventListeners(){
     });
 }
 
-function fbDataGather (){
-    data["clientID"] = window.location.hash.split("/").slice(-2, -1).toString();
-    data["facebook_page_ID"] = $("a.line-height-pic").attr('href').split("/").pop();
-	data["ad_account_ID"] = $("a.partner-color").attr('href').split("=").pop();
-}
-
+// gathers campaign IDs and sets each campaign name as a click-copy of it's ID
 function campaignCopy (){
     data["clientID"] = window.location.hash.split("/").slice(-1).toString();
     var campaign_names =  $('span[data-bind="text: $data.name(), maxLength: 30"]');
-
     var campaign_IDs = $('a:hidden[data-bind*="campaigns/"]').map(function(i,el) { return $(el).attr('href').split("/").slice(-2, -1).toString(); }).get();
 
     $.each(campaign_names, function( index ) {
@@ -108,6 +49,30 @@ function campaignCopy (){
     return false;
 }
 
+// checks the current location to see if you've landed on a cusomer page
+function checkLocation(){
+    if ( "#/clients" === window.location.hash ){
+        return false;
+    }
+    else if ( window.location.hash.includes("#/clients/") ){
+        waitForKeyElements ("#single-client-view-business-name", gatherData);
+    }
+}
+
+// copies provided copy and creates an alert confirming what was copied
+function clipboardCopy(copy){
+    navigator.clipboard.writeText(copy).then(
+        function(){
+            alert("Copied: \n" + copy); // success
+        })
+        .catch(
+        function() {
+            alert("err"); // error
+        });
+    return false;
+}
+
+// creates the popup modal and it's input / buttons
 function copyPopup(){
     $("#gmPopupContainer").toggle();
     if (! social_check){
@@ -117,8 +82,6 @@ function copyPopup(){
         $('label[for="ad_account_ID"]').css("display", "none")
     };
 
-
-    //--- Use jQuery to activate the dialog buttons.
     $("#gmCopyButton").click ( function () {
         gatherCopy(true);
     } );
@@ -128,8 +91,16 @@ function copyPopup(){
         evt.stopImmediatePropagation()
     } );
 return false;
-};
+}
 
+// gathers fb and ad account IDs from a social page
+function fbDataGather (){
+    data["clientID"] = window.location.hash.split("/").slice(-2, -1).toString();
+    data["facebook_page_ID"] = $("a.line-height-pic").attr('href').split("/").pop();
+	data["ad_account_ID"] = $("a.partner-color").attr('href').split("=").pop();
+}
+
+// gathers all selected items in the popup modal and copies them to clipboard
 function gatherCopy(popup=false){
     var info = "";
     var inputs;
@@ -149,20 +120,29 @@ function gatherCopy(popup=false){
     });
     clipboardCopy(info);
     return false;
-};
+}
 
-function clipboardCopy(copy){
-    console.log ("Copied to clipboard: ", copy);
+// gathers client / customer info from a given client page
+function gatherData () {
+    social_check = false;
+    data = {
+        "clientName" : document.getElementById('single-client-view-business-name').innerText,
+        "clientID" : null,
+        "companyID" : localStorage.companyId,
+        "companyName" : null,
+        "facebook_page_ID" : null,
+        "ad_account_ID" : null
+    };
+    data["companyName"] = companies[data["companyID"]]["name"];
 
-    navigator.clipboard.writeText(copy).then(
-        function(){
-            alert("Copied: \n" + copy); // success
-        })
-        .catch(
-        function() {
-            alert("err"); // error
-        });
-    return false;
+    if (window.location.hash.split("/").pop() === "social"){
+        waitForKeyElements ("a.partner-color", fbDataGather);
+        social_check = true;
+    }
+    else{
+        waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy);
+    }
+    waitForKeyElements ('.account-img', addEventListeners)
 }
 
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
@@ -170,24 +150,7 @@ var target = document.querySelector('title');
 
 var observer = new MutationObserver(function(mutations) {
     $("#gmPopupContainer").remove();
-    $("body").append ( '                                                          \
-<div id="gmPopupContainer" style="display:none;">                                               \
-<input type="checkbox" id="clientName" value="Client Name">                      \
-<label for="clientName">Client Name</label><br>                              \
-<input type="checkbox" id="clientID" value="Client ID">                        \
-<label for="clientID">Client ID</label><br>                              \
-<input type="checkbox" id="companyID" value="Company ID">                       \
-<label for="companyID">Company ID</label><br>                             \
-<input type="checkbox" id="companyName" value="Company Name">                     \
-<label for="companyName">Company Name</label><br>                              \
-<input type="checkbox" id="facebook_page_ID" value="Facebook Page ID">                \
-<label for="facebook_page_ID">Facebook Page ID</label><br>                              \
-<input type="checkbox" id="ad_account_ID" value="Ad account ID">                   \
-<label for="ad_account_ID">Ad account ID</label><br>                             \
-<button id="gmCopyButton" type="button">Copy selected values</button>  \
-<button id="gmCloseButton" type="button">Close popup</button>         \
-</div>                                                                    \
-' );
+    $("body").append ( htmlTemplate );
     setTimeout(checkLocation, 3000);
 });
 
