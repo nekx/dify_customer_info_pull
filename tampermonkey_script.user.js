@@ -13,7 +13,7 @@
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2
+// @version 2.2.1
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
@@ -43,7 +43,7 @@ function campaignCopy (){
     var campaign_IDs = $('a:hidden[data-bind*="campaigns/"]').map(function(i,el) { return $(el).attr('href').split("/").slice(-2, -1).toString(); }).get();
 
     $.each(campaign_names, function( index ) {
-        $(this).click(function(){clipboardCopy(campaign_IDs[index])})
+        $(this).click(function(evt){clipboardCopy(campaign_IDs[index]); evt.stopImmediatePropagation();})
         $(this).attr('title', campaign_IDs[index]);
     });
     return false;
@@ -92,7 +92,7 @@ function copyPopup(){
 
     $("#gmCloseButton").click ( function (evt) {
         $("#gmPopupContainer").toggle();
-        evt.stopImmediatePropagation()
+        evt.stopImmediatePropagation();
     } );
 return false;
 }
