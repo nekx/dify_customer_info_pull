@@ -6,7 +6,7 @@
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
-// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.html
+// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/testHTMLtemplate
 // @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.css
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
@@ -82,6 +82,10 @@ function copyPopup(){
         $('label[for="ad_account_ID"]').css("display", "none")
     };
 
+    $("#gmCopyNoTitleButton").click ( function () {
+        gatherCopy(true, false);
+    } );
+
     $("#gmCopyButton").click ( function () {
         gatherCopy(true);
     } );
@@ -101,7 +105,7 @@ function fbDataGather (){
 }
 
 // gathers all selected items in the popup modal and copies them to clipboard
-function gatherCopy(popup=false){
+function gatherCopy(popup=false, copyTitles=true){
     var info = "";
     var inputs;
     if (popup){ inputs = $("input[type='checkbox']:checked"); }
@@ -109,14 +113,26 @@ function gatherCopy(popup=false){
     inputs.each ( function (index) {
         var id = $(this).attr("id");
         var value = data[id]
-        if (value != null){
-            if (index == 0){
-                info = info.concat($(this).val() + ": " + value);
-            }
-            else {
-                info = info.concat(",\n" + $(this).val() + ": " + value);
+        if (copyTitles){
+            if (value != null){
+                if (index == 0){
+                    info = info.concat($(this).val() + ": " + value);
+                }
+                else {
+                    info = info.concat(",\n" + $(this).val() + ": " + value);
+                }
             }
         }
+       else {
+           if (value != null){
+                if (index == 0){
+                    info = info.concat(value);
+                }
+                else {
+                    info = info.concat("\n" + value);
+                }
+            }
+       }
     });
     clipboardCopy(info);
     return false;
