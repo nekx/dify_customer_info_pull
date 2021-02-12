@@ -13,7 +13,7 @@
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2.2
+// @version 2.2.3
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
@@ -26,8 +26,13 @@ GM_addStyle ( cssTemplate );                             // applies cssTemplate
 
 // adds the gatherCopy function as click events to the client image
 function addEventListeners(){
-    var clientImg = document.getElementsByClassName("account-img")[0];
-
+    var clientImg = null;
+    if ($(".account-img").length){
+        clientImg = $('.account-img')[0];
+    }
+    else {
+        clientImg = $('i.fa.fa-circle')[0];
+    }
     clientImg.addEventListener("contextmenu", function(e){e.preventDefault();e.stopImmediatePropagation();copyPopup();return false;}, false);
     clientImg.addEventListener("click", function(evt){
         gatherCopy();
@@ -153,9 +158,9 @@ function gatherData () {
         social_check = true;
     }
     else{
-        waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy, bWaitOnce=false);
+        waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy);
     }
-    waitForKeyElements ('.account-img', addEventListeners)
+    waitForKeyElements ('span#single-client-view-business-name', addEventListeners)
 }
 
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
