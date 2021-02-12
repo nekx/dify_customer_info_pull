@@ -13,7 +13,7 @@
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2.1
+// @version 2.2.2
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
@@ -37,15 +37,12 @@ function addEventListeners(){
 }
 
 // gathers campaign IDs and sets each campaign name as a click-copy of it's ID
-function campaignCopy (){
-    data["clientID"] = window.location.hash.split("/").slice(-1).toString();
-    var campaign_names =  $('span[data-bind="text: $data.name(), maxLength: 30"]');
-    var campaign_IDs = $('a:hidden[data-bind*="campaigns/"]').map(function(i,el) { return $(el).attr('href').split("/").slice(-2, -1).toString(); }).get();
+function campaignCopy (jNode){
+    var targetNode = jNode.find('span[data-bind="text: $data.name(), maxLength: 30"]');
+    var campaignID = jNode.find('a:hidden[data-bind*="campaigns/"]').attr('href').split("/").slice(-2, -1).toString();
+    targetNode.click(function(evt){clipboardCopy(campaignID); evt.stopImmediatePropagation();})
+    targetNode.attr('title', campaignID);
 
-    $.each(campaign_names, function( index ) {
-        $(this).click(function(evt){clipboardCopy(campaign_IDs[index]); evt.stopImmediatePropagation();})
-        $(this).attr('title', campaign_IDs[index]);
-    });
     return false;
 }
 
@@ -99,9 +96,9 @@ return false;
 
 // gathers fb and ad account IDs from a social page
 function fbDataGather (){
-    data["clientID"] = window.location.hash.split("/").slice(-2, -1).toString();
-    data["facebook_page_ID"] = $("a.line-height-pic").attr('href').split("/").pop();
-	data["ad_account_ID"] = $("a.partner-color").attr('href').split("=").pop();
+    data["clientID"] = window.location.hash.split("/").slice(-2, -1).toString() || null;
+    data["facebook_page_ID"] = $("a.line-height-pic").attr('href').split("/").pop() || null;
+	data["ad_account_ID"] = $("a.partner-color").attr('href').split("=").pop() || null;
 }
 
 // gathers all selected items in the popup modal and copies them to clipboard
@@ -156,7 +153,7 @@ function gatherData () {
         social_check = true;
     }
     else{
-        waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy);
+        waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy, bWaitOnce=false);
     }
     waitForKeyElements ('.account-img', addEventListeners)
 }
