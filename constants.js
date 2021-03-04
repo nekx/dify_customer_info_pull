@@ -370,4 +370,8 @@ const	companies = {
 			"name": "The Corcoran Group",
 			"publicName": "Corcoran Social Ad Engine"
 		}
+		"197":{
+			"name": "GoDaddy Social",
+			"publicName": "GoDaddy Social"
+		}
 }
