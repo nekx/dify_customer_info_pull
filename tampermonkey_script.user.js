@@ -13,7 +13,7 @@
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2.4
+// @version 2.2.5
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
@@ -145,7 +145,7 @@ function gatherData () {
     social_check = false;
     data = {
         "clientName" : document.getElementById('single-client-view-business-name').innerText,
-        "clientID" : null,
+        "clientID" : document.location.hash.replace(/#\/(campaigns|clients)\//i, "").split('/')[0],
         "companyID" : localStorage.companyId,
         "companyName" : null,
         "facebook_page_ID" : null,
