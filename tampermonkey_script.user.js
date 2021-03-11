@@ -146,12 +146,12 @@ function gatherData () {
     data = {
         "clientName" : document.getElementById('single-client-view-business-name').innerText,
         "clientID" : document.location.hash.replace(/#\/(campaigns|clients)\//i, "").split('/')[0],
-        "companyID" : localStorage.companyId,
-        "companyName" : null,
+        "partnerID" : localStorage.partnerId,
+        "partnerName" : null,
         "facebook_page_ID" : null,
         "ad_account_ID" : null
     };
-    data["companyName"] = companies[data["companyID"]]["name"];
+    data["partnerName"] = partners[data["partnerID"]]["name"];
 
     if (window.location.hash.split("/").pop() === "social"){
         waitForKeyElements ("a.partner-color", fbDataGather);
