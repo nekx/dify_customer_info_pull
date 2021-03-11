@@ -13,7 +13,7 @@
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2.6
+// @version 2.2.7
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
