@@ -1,4 +1,4 @@
-const	companies = {
+const	partners = {
 		"44":{
 			"name": "Tiger Pistol Demo Subscriptions",
 			"publicName": "Tiger Pistol Demo"
