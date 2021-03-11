@@ -3,6 +3,7 @@
 // @description Allow easy copying of customer data from a given DIFY page
 // @name     Customer info grab
 // @include  http*://dify.tigerpistol.com*
+// @noframes
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
