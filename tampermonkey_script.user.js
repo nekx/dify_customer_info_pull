@@ -146,7 +146,7 @@ function gatherData () {
     data = {
         "clientName" : document.getElementById('single-client-view-business-name').innerText,
         "clientID" : document.location.hash.replace(/#\/(campaigns|clients)\//i, "").split('/')[0],
-        "partnerID" : localStorage.partnerId,
+        "partnerID" : localStorage.companyId,
         "partnerName" : null,
         "facebook_page_ID" : null,
         "ad_account_ID" : null
