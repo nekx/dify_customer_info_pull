@@ -6,14 +6,14 @@
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
-// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/testHTMLtemplate
+// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.html
 // @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.css
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2.7
+// @version 2.2.8
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
