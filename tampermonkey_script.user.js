@@ -14,7 +14,7 @@
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
-// @version 2.2.8
+// @version 2.2.9
 // ==/UserScript==
 
 var data = null;                                         // contains all copy-able data for the popup
@@ -46,7 +46,9 @@ function addEventListeners(){
 function campaignCopy (jNode){
     var targetNode = jNode.find('span[data-bind="text: $data.name(), maxLength: 30"]');
     var campaignID = jNode.find('a[data-bind*="campaigns/"]:not(.btn)').attr('href').split("/").slice(-2, -1).toString();
+    var campaignName = targetNode.text()
     targetNode.click(function(evt){clipboardCopy(campaignID); evt.stopImmediatePropagation();})
+    targetNode.contextmenu(function(evt){clipboardCopy(campaignName); evt.stopImmediatePropagation();})
     targetNode.attr('title', campaignID);
 
     return false;
