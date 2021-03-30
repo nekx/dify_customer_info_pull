@@ -9,7 +9,7 @@
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
 // @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.html
 // @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.css
-// @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.css
+// @resource accountImgCSSTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/accountImg.css
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/dev/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/dev/tampermonkey_script.user.js
 // @grant    GM_setClipboard
