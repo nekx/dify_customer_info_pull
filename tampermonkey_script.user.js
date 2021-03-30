@@ -4,13 +4,14 @@
 // @name     Customer info grab
 // @include  http*://dify.tigerpistol.com*
 // @noframes
-// @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
+// @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
-// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.html
-// @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.css
-// @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
-// @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
+// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.html
+// @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.css
+// @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.css
+// @updateURL https://github.com/nekx/dify_customer_info_pull/raw/dev/tampermonkey_script.user.js
+// @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/dev/tampermonkey_script.user.js
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
@@ -50,6 +51,7 @@ function campaignCopy (jNode){
     targetNode.click(function(evt){clipboardCopy(campaignID); evt.stopImmediatePropagation();})
     targetNode.contextmenu(function(evt){clipboardCopy(campaignName); evt.stopImmediatePropagation();})
     targetNode.attr('title', campaignID);
+    GM_addStyle( accountImgTemplate )
 
     return false;
 }
