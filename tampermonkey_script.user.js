@@ -3,25 +3,31 @@
 // @description Allow easy copying of customer data from a given DIFY page
 // @name     Customer info grab
 // @include  http*://dify.tigerpistol.com*
+// @include  https://forms.monday.com/forms*
 // @noframes
-// @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/constants.js
+// @require  http://localhost:8080/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
-// @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.html
-// @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/selection.css
-// @resource accountImgCSSTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/dev/accountImg.css
-// @updateURL https://github.com/nekx/dify_customer_info_pull/raw/dev/tampermonkey_script.user.js
-// @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/dev/tampermonkey_script.user.js
+// @resource htmlTemplate http://localhost:8080/selection.html
+// @resource cssTemplate http://localhost:8080/selection.css
+// @resource accountImgCSSTemplate http://localhost:8080/accountImg.css
+// @updateURL http://localhost:8080/tampermonkey_script.user.js
+// @downloadURL http://localhost:8080/tampermonkey_script.user.js
 // @grant    GM_setClipboard
 // @grant    GM_addStyle
 // @grant    GM_getResourceText
+// @grant    GM_openInTab
+// @grant    GM_setValue
+// @grant    GM_getValue
 // @version 3.0.0 
 // ==/UserScript==
+
 
 var data = null;                                         // contains all copy-able data for the popup
 var social_check = false;                                // Marker for the social page
 var cssTemplate = GM_getResourceText ("cssTemplate");    // css template
 var htmlTemplate = GM_getResourceText ("htmlTemplate");  // html template
+var accountImgTemplate = GM_getResourceText ("accountImgCSSTemplate");  // html template
 
 GM_addStyle ( cssTemplate );                             // applies cssTemplate
 
@@ -83,11 +89,14 @@ function clipboardCopy(copy){
 function copyPopup(){
     $("#gmPopupContainer").toggle();
     if (! social_check){
-        $("#facebook_page_ID").css("display", "none")
         $("#ad_account_ID").css("display", "none")
-        $('label[for="facebook_page_ID"]').css("display", "none")
         $('label[for="ad_account_ID"]').css("display", "none")
     };
+
+    $("#gmTemplateButton").click( function(){
+        var template = $("#template_pick").val();
+        gatherCopy(false, false, template = template);
+    })
 
     $("#gmCopyNoTitleButton").click ( function () {
         gatherCopy(true, false);
@@ -112,11 +121,14 @@ function fbDataGather (){
 }
 
 // gathers all selected items in the popup modal and copies them to clipboard
-function gatherCopy(popup=false, copyTitles=true){
+function gatherCopy(popup=false, copyTitles=true, template=false){
     var info = "";
+    var templateData = new Object()
     var inputs;
+    var submitterName = $('span[data-bind="text: user.fullName"]').text()
     if (popup){ inputs = $("input[type='checkbox']:checked"); }
-    else { inputs = $("input[type='checkbox']"); }
+    else { inputs = $("input[type='checkbox']:visible"); }
+    var last_index = inputs.length - 1
     inputs.each ( function (index) {
         var id = $(this).attr("id");
         var value = data[id]
@@ -130,18 +142,30 @@ function gatherCopy(popup=false, copyTitles=true){
                 }
             }
         }
-       else {
-           if (value != null){
-                if (index == 0){
-                    info = info.concat(value);
-                }
-                else {
-                    info = info.concat("\n" + value);
-                }
+        else if(template == "Bug Submission"){
+            if (value != null){
+                templateData[$(this).val()] = value;
             }
+            templateData.submitter = submitterName;
+        }
+        else {
+             if (value != null){
+                    if (index == 0){
+                        info = info.concat(value);
+                    }
+                    else {
+                        info = info.concat("\n" + value);
+                    }
+                }
        }
     });
-    clipboardCopy(info);
+    if(template == "Bug Submission"){
+        GM_openInTab("https://forms.monday.com/forms/0e28fad59e19bafce727b4dcfcfdac94");
+        GM_setValue("data", templateData)
+    }
+    else{
+        clipboardCopy(info);
+    }
     return false;
 }
 
@@ -156,6 +180,13 @@ function gatherData () {
         "facebook_page_ID" : null,
         "ad_account_ID" : null
     };
+    try {
+        data["facebook_page_ID"] = document.getElementById('client-social-link-fb').pathname.split('/')[1] 
+    } catch(e){
+        if (!(e instanceof TypeError)){
+            throw e
+        }
+    }
     data["partnerName"] = partners[data["partnerID"]]["name"];
 
     if (window.location.hash.split("/").pop() === "social"){
@@ -169,6 +200,15 @@ function gatherData () {
 }
 
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
+
+var bugData = GM_getValue('data')
+var location = window.location.href
+if(bugData && location == "https://forms.monday.com/forms/0e28fad59e19bafce727b4dcfcfdac94"){
+    $('.form-input').eq(1).val(bugData["submitter"])
+    $('.form-input').eq(2).val(bugData["Client Name"])
+    $('.form-input').eq(3).val(bugData["Partner ID"])
+    $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"])
+}
 var target = document.querySelector('title');
 
 var observer = new MutationObserver(function(mutations) {
