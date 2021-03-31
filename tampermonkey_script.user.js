@@ -19,7 +19,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 3.0.0 
+// @version 3.0.2 
 // ==/UserScript==
 
 
@@ -207,7 +207,13 @@ if(bugData && location == "https://forms.monday.com/forms/0e28fad59e19bafce727b4
     $('.form-input').eq(1).val(bugData["submitter"])
     $('.form-input').eq(2).val(bugData["Client Name"])
     $('.form-input').eq(3).val(bugData["Partner ID"])
+    if (bugData["Ad account ID"]){
+    $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]
+    + '\n' + "Ad account ID:" + '\n' + bugData["Ad account ID"])
+    }
+    else{
     $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"])
+    }
 }
 var target = document.querySelector('title');
 
