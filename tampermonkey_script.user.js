@@ -4,6 +4,7 @@
 // @name     Customer info grab
 // @include  http*://dify.tigerpistol.com*
 // @include  https://forms.monday.com/forms*
+// @include  https://crmplus.zoho.com/tigerpistol*
 // @noframes
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
@@ -206,27 +207,43 @@ function gatherData () {
 // checks for changes to the title, waits 2 seconds and runs checkLocation()
 
 var bugData = GM_getValue('data')
+var ticketURL = GM_getValue('ticketURL')
 var location = window.location.href
 if(bugData && location == "https://forms.monday.com/forms/0e28fad59e19bafce727b4dcfcfdac94"){
     $('.form-input').eq(1).val(bugData["submitter"])
     $('.form-input').eq(2).val(bugData["Client Name"])
     $('.form-input').eq(3).val(bugData["Partner ID"])
+    $('.form-input').eq(4).val(ticketURL)
+    console.log(bugData["ticketURL"])
     if (bugData["Ad account ID"]){
     $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]
-    + '\n' + "Ad account ID:" + '\n' + bugData["Ad account ID"])
+    + '\n' + "Ad account ID:" + '\n' + bugData["Ad account ID"]);
     }
     else{
-    $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"])
+    $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]);
     }
 }
-var target = document.querySelector('title');
+else if (location.includes("https://crmplus.zoho.com/tigerpistol")){
 
-var observer = new MutationObserver(function(mutations) {
-    $("#gmPopupContainer").remove();
-    $("body").append ( htmlTemplate );
-    setTimeout(checkLocation, 3000);
-});
+setInterval(function(location)
+{
+    if (location != window.location.href)
+    {
+        GM_setValue("ticketURL", window.location.href);
+    }
+}, 500);
+}
+else if (location.includes("https://dify.tigerpistol.com")){
+    console.log('got here')
+    var target = document.querySelector('title');
 
-var config = { subtree: true, characterData: true, childList: true };
+    var observer = new MutationObserver(function(mutations) {
+        $("#gmPopupContainer").remove();
+        $("body").append ( htmlTemplate );
+        setTimeout(checkLocation, 3000);
+    });
 
-observer.observe(target, config);
+    var config = { subtree: true, characterData: true, childList: true };
+
+    observer.observe(target, config);
+}
