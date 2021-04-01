@@ -131,11 +131,12 @@ function fbDataGather (){
 function gatherCopy(popup=false, copyTitles=true, template=false){
     var info = "";
     var templateData = new Object()
-    var inputs;
+    var inputs = $("input[type='checkbox']");
     var submitterName = $('span[data-bind="text: user.fullName"]').text()
     if (popup){ inputs = $("input[type='checkbox']:checked"); }
-    else { inputs = $("input[type='checkbox']:visible"); }
+    else if (template) { inputs = $("input[type='checkbox']:visible");}
     var last_index = inputs.length - 1
+    console.log(inputs)
     inputs.each ( function (index) {
         var id = $(this).attr("id");
         var value = data[id]
@@ -164,7 +165,7 @@ function gatherCopy(popup=false, copyTitles=true, template=false){
                         info = info.concat("\n" + value);
                     }
                 }
-       }
+        }
     });
     if(template == "Bug Submission"){
         GM_openInTab("https://forms.monday.com/forms/0e28fad59e19bafce727b4dcfcfdac94");
@@ -183,12 +184,12 @@ function gatherData () {
         "clientName" : document.getElementById('single-client-view-business-name').innerText,
         "clientID" : document.location.hash.replace(/#\/(campaigns|clients)\//i, "").split('/')[0],
         "partnerID" : localStorage.companyId,
-        "partnerName" : null,
-        "facebook_page_ID" : null,
-        "ad_account_ID" : null
+        "partnerName" : "not found",
+        "facebook_page_ID" : "not found",
+        "ad_account_ID" : "not found"
     };
     try {
-        data["facebook_page_ID"] = document.getElementById('client-social-link-fb').pathname.split('/')[1] || "not found"
+        if($('a#client-social-link-fb').attr('href').length){data["facebook_page_ID"] = $("a#client-social-link-fb").attr('href').split("/").pop()}
     } catch(e){
         if (!(e instanceof TypeError)){
             throw e
