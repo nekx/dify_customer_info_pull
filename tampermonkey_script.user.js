@@ -121,8 +121,10 @@ return false;
 // gathers fb and ad account IDs from a social page
 function fbDataGather (){
     data["clientID"] = window.location.hash.split("/").slice(-2, -1).toString() || null;
-    data["facebook_page_ID"] = $("a.line-height-pic").attr('href').split("/").pop() || null;
-	data["ad_account_ID"] = $("a.partner-color").attr('href').split("=").pop() || null;
+    if($('a.line-heightpic').length){data["facebook_page_ID"] = $("a.line-height-pic").attr('href').split("/").pop(); console.log("found ID")}
+    else{data["facebook_page_ID"] = "not found"; console.log("not found")}
+	if($('a.partner-color').length){data["ad_account_ID"] = $("a.partner-color").attr('href').split("=").pop()}
+    else{data["ad_account_ID"] = "not found"}
 }
 
 // gathers all selected items in the popup modal and copies them to clipboard
@@ -186,7 +188,7 @@ function gatherData () {
         "ad_account_ID" : null
     };
     try {
-        data["facebook_page_ID"] = document.getElementById('client-social-link-fb').pathname.split('/')[1] 
+        data["facebook_page_ID"] = document.getElementById('client-social-link-fb').pathname.split('/')[1] || "not found"
     } catch(e){
         if (!(e instanceof TypeError)){
             throw e
@@ -234,7 +236,6 @@ setInterval(function(location)
 }, 500);
 }
 else if (location.includes("https://dify.tigerpistol.com")){
-    console.log('got here')
     var target = document.querySelector('title');
 
     var observer = new MutationObserver(function(mutations) {
