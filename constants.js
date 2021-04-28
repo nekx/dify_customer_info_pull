@@ -1,4 +1,8 @@
 const	partners = {
+		"356":{
+			"name": "Lincoln Investment",
+			"publicName": "Lincoln Investment"
+		},
 		"44":{
 			"name": "Tiger Pistol Demo Subscriptions",
 			"publicName": "Tiger Pistol Demo"
