@@ -4,7 +4,7 @@
 // @name     Customer info grab
 // @include  http*://dify.tigerpistol.com*
 // @include  https://forms.monday.com/forms*
-// @include  https://crmplus.zoho.com/tigerpistol*
+// @include  https://tigerpistol.lightning.force.com*
 // @noframes
 // @require  https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/constants.js
 // @require  http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
@@ -24,7 +24,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 3.0.4  
+// @version 3.0.5  
 // ==/UserScript==
 
 
@@ -57,8 +57,15 @@ function addEventListeners(){
 // gathers campaign IDs and sets each campaign name as a click-copy of it's ID
 function campaignCopy (jNode){
     var targetNode = jNode.find('span[data-bind="text: $data.name(), maxLength: 30"]');
-    var campaignID = jNode.find('a[data-bind*="campaigns/"]:not(.btn)').attr('href').split("/").slice(-2, -1).toString();
-    var campaignName = targetNode.text()
+    try{
+        var campaignID = jNode.find('a[data-bind*="campaigns/"]:not(.btn)').attr('href').split("/").slice(-2, -1).toString();
+        var campaignName = targetNode.text()
+    } catch(e){
+        if (!(e instanceof TypeError)){
+            throw e
+        }
+    }
+    
     targetNode.click(function(evt){clipboardCopy(campaignID); evt.stopImmediatePropagation();})
     targetNode.contextmenu(function(evt){clipboardCopy(campaignName); evt.stopImmediatePropagation();})
     targetNode.attr('title', campaignID);
@@ -226,7 +233,7 @@ if(bugData && location == "https://forms.monday.com/forms/0e28fad59e19bafce727b4
     $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]);
     }
 }
-else if (location.includes("https://crmplus.zoho.com/tigerpistol")){
+else if (location.includes("https://tigerpistol.lightning.force.com")){
 
 setInterval(function(location)
 {
