@@ -57,8 +57,15 @@ function addEventListeners(){
 // gathers campaign IDs and sets each campaign name as a click-copy of it's ID
 function campaignCopy (jNode){
     var targetNode = jNode.find('span[data-bind="text: $data.name(), maxLength: 30"]');
-    var campaignID = jNode.find('a[data-bind*="campaigns/"]:not(.btn)').attr('href').split("/").slice(-2, -1).toString();
-    var campaignName = targetNode.text()
+    try{
+        var campaignID = jNode.find('a[data-bind*="campaigns/"]:not(.btn)').attr('href').split("/").slice(-2, -1).toString();
+        var campaignName = targetNode.text()
+    } catch(e){
+        if (!(e instanceof TypeError)){
+            throw e
+        }
+    }
+    
     targetNode.click(function(evt){clipboardCopy(campaignID); evt.stopImmediatePropagation();})
     targetNode.contextmenu(function(evt){clipboardCopy(campaignName); evt.stopImmediatePropagation();})
     targetNode.attr('title', campaignID);
