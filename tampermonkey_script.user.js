@@ -24,7 +24,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 3.0.5  
+// @version 3.0.6  
 // ==/UserScript==
 
 
