@@ -221,16 +221,16 @@ var ticketURL = GM_getValue('ticketURL')
 var location = window.location.href
 if(bugData && location == "https://forms.monday.com/forms/0e28fad59e19bafce727b4dcfcfdac94"){
     $('.form-input').eq(1).val(bugData["submitter"])
-    $('.form-input').eq(2).val(bugData["Client Name"])
-    $('.form-input').eq(3).val(bugData["Partner ID"])
+    $('.form-input').eq(2).val(bugData["DIFY Client Name"])
+    $('.form-input').eq(3).val(bugData["DIFY Partner ID"])
     $('.form-input').eq(4).val(ticketURL)
     console.log(bugData["ticketURL"])
     if (bugData["Ad account ID"]){
-    $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]
+    $('.form-input').eq(5).val("DIFY Client ID:" + '\n' + bugData["DIFY Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]
     + '\n' + "Ad account ID:" + '\n' + bugData["Ad account ID"]);
     }
     else{
-    $('.form-input').eq(5).val("Client ID:" + '\n' + bugData["Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]);
+    $('.form-input').eq(5).val("DIFY Client ID:" + '\n' + bugData["DIFY Client ID"] + '\n'+ "Facebook Page ID:" + '\n' +  bugData["Facebook Page ID"]);
     }
 }
 else if (location.includes("https://tigerpistol.lightning.force.com")){
