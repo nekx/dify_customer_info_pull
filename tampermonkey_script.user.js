@@ -24,7 +24,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 3.0.6  
+// @version 3.1.0  
 // ==/UserScript==
 
 
@@ -54,9 +54,20 @@ function addEventListeners(){
     });
 }
 
+// simulates clicking all the campaign name spans to turn them into campaign IDs
+function allClick(){
+    var targetSpans = $('span[data-bind="text: $data.name(), maxLength: 30"]');
+    targetSpans.each(function(){
+        campaignFlip($(this)[0]);
+    });
+
+}
+
 // gathers campaign IDs and sets each campaign name as a click-copy of it's ID
 function campaignCopy (jNode){
+    var flipIcon = jNode.find('.dynamic-square');
     var targetNode = jNode.find('span[data-bind="text: $data.name(), maxLength: 30"]');
+    targetNode.css("white-space","normal");
     try{
         var campaignID = jNode.find('a[data-bind*="campaigns/"]:not(.btn)').attr('href').split("/").slice(-2, -1).toString();
         var campaignName = targetNode.text()
@@ -69,10 +80,24 @@ function campaignCopy (jNode){
     targetNode.click(function(evt){clipboardCopy(campaignID); evt.stopImmediatePropagation();})
     targetNode.contextmenu(function(evt){clipboardCopy(campaignName); evt.stopImmediatePropagation();})
     targetNode.attr('title', campaignID);
+    flipIcon.click(function(evt){campaignFlip(targetNode); evt.stopImmediatePropagation();})
     GM_addStyle( accountImgTemplate )
 
     return false;
 }
+
+// switches the title and innerHTML text of the campaigns of a given page
+function campaignFlip (targetNode){
+    var title = $(targetNode).attr('title')
+    var name = $(targetNode).text()
+    
+    $(targetNode).text(title)
+    $(targetNode).attr('title', name) 
+
+    return false;
+}
+
+
 
 // checks the current location to see if you've landed on a cusomer page
 function checkLocation(){
@@ -211,6 +236,9 @@ function gatherData () {
     else{
         waitForKeyElements ('div[data-bind="click: $component.showCampaign.bind($component), css: $component.getActiveRowCss(ko.unwrap(id))"]', campaignCopy);
     }
+    //HERE
+    var allFlipIcon = $('.fa.fa-pie-chart');
+    allFlipIcon.click(allClick);
     waitForKeyElements ('span#single-client-view-business-name', addEventListeners)
 }
 
