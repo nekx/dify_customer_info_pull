@@ -2,7 +2,7 @@
 // @author Chase Walker
 // @description Allow easy copying of customer data from a given DIFY page
 // @name     Customer info grab
-// @include  http*://dify.tigerpistol.com/\#/clients/*
+// @include  http*://dify.tigerpistol.com/*
 // @noframes
 // @resource htmlTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.html
 // @resource cssTemplate https://raw.githubusercontent.com/nekx/dify_customer_info_pull/main/selection.css
@@ -15,7 +15,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 4.0.0
+// @version 4.0.1
 // ==/UserScript==
 
 
@@ -39,18 +39,21 @@ XMLHttpRequest.prototype.open = function() {
         
 //            console.log(this)
             parsedResponse = JSON.parse(this.responseText)
-            pageInfo.businessName = parsedResponse.name
-            pageInfo.businessID = parsedResponse.id
-            pageInfo.companyID = parsedResponse.companyId
-            if(pageInfo.companyList){pageInfo.companyName = pageInfo.companyList.find((element) => element.id == pageInfo.companyID).name; delete pageInfo.companyList}
+            pageInfo.businessName = ['DIFY Name', parsedResponse.name]
+            pageInfo.businessID = ['DIFY ID:', parsedResponse.id]
+            pageInfo.companyID = ['DIFY Instance ID', parsedResponse.companyId]
+            if(pageInfo.companyList){
+                pageInfo.companyName = ['DIFY Instance Name', pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
+                delete pageInfo.companyList
+            }
             try{
-                pageInfo.facebookPageID = parsedResponse.socialAccounts[0].id
+                pageInfo.facebookPageID = ['FB Page ID', parsedResponse.socialAccounts[0].id]
             }
             catch(e){
                 console.log('Couldn\'t find FB ID')
             }
             try{
-            pageInfo.facebookAdID = parsedResponse.facebookAdAccountId.slice(4)
+            pageInfo.facebookAdID = ['FB Ad ID', parsedResponse.facebookAdAccountId.slice(4)]
             }
             catch(e){
                 console.log('Couldn\'t find FB ad ID')
@@ -60,7 +63,7 @@ XMLHttpRequest.prototype.open = function() {
         else if(this.responseURL.includes("currentUser")){
             pageInfo.companyList = JSON.parse(this.responseText).companies
             if (pageInfo.companyID){
-                pageInfo.companyName = pageInfo.companyList.find((element) => element.id == pageInfo.companyID).name
+                pageInfo.companyName = ['DIFY Instance Name',pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
                 delete pageInfo.companyList
             }
         }
@@ -80,6 +83,7 @@ function doTheThing(target){
     clientName.addEventListener("contextmenu", function(e){
         e.preventDefault();
         gatherData();
+        copyPopup();
         return false;
     })
 
@@ -97,7 +101,7 @@ function gatherData(){
 function copyData(){
     data = []
     for (element in this.pageInfo){
-        data.push(`${element}:\n${this.pageInfo[element]}\n\n`)
+        data.push(`${this.pageInfo[element][0]}:\n${this.pageInfo[element][1]}\n\n`)
     }
     clipboardCopy(data.join(''))
 
@@ -116,4 +120,51 @@ function clipboardCopy(copy){
             alert("err"); // error
         });
     return false;
+}
+// creates the popup modal and it's input / buttons
+function copyPopup(){
+    
+    console.log('copyPopup()')
+    let self = this
+
+    let popupContainer = document.getElementById('gmPopupContainer')
+    let body = document.getElementsByTagName('body')[0]
+    
+    // removes the popup
+    if (document.contains(popupContainer)){
+        popupContainer.remove()
+    }
+    // refreshes the htmlTemplate by appending it
+    body.insertAdjacentHTML('afterend', htmlTemplate)
+    popupContainer = document.getElementById('gmPopupContainer')
+    let templateButton = document.getElementById('gmTemplateButton')
+    let copyNoTitleButton = document.getElementById('gmCopyNoTitleButton')
+    let copyButton = document.getElementById("gmCopyButton")
+    let closeButton = document.getElementById("gmCloseButton")
+  
+    // display the popup
+    popupContainer.style.display = "block"
+
+    // sets left click of the template button
+    templateButton.addEventListener("click", function(e){
+
+    })
+
+    // set the left click of the No Titles button to gatherCopy() with popup=true and copyTitles=false
+    copyNoTitleButton.addEventListener("click", function(e){
+
+    })
+
+    // sets the left click of the Copy button to gatherCopy with popup=true
+    copyButton.addEventListener("click", function(e){
+
+    })
+
+    // sets the left click of Close button to close the popup
+    closeButton.addEventListener("click", function(e){
+        popupContainer.classList.toggle('visable');
+        e.stopImmediatePropagation();
+    })
+
+return false;
 }
