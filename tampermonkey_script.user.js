@@ -15,7 +15,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 4.0.2
+// @version 4.0.3
 // ==/UserScript==
 
 
@@ -101,7 +101,7 @@ function gatherData(){
 function copyData(){
     data = []
     for (element in this.pageInfo){
-        data.push(`${this.pageInfo[element][0]}:\n${this.pageInfo[element][1]}\n\n`)
+        data.push(`${this.pageInfo[element][0]}: ${this.pageInfo[element][1]}\n\n`)
     }
     clipboardCopy(data.join(''))
 
