@@ -15,7 +15,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 4.0.1
+// @version 4.0.2
 // ==/UserScript==
 
 
@@ -40,7 +40,7 @@ XMLHttpRequest.prototype.open = function() {
 //            console.log(this)
             parsedResponse = JSON.parse(this.responseText)
             pageInfo.businessName = ['DIFY Name', parsedResponse.name]
-            pageInfo.businessID = ['DIFY ID:', parsedResponse.id]
+            pageInfo.businessID = ['DIFY ID', parsedResponse.id]
             pageInfo.companyID = ['DIFY Instance ID', parsedResponse.companyId]
             if(pageInfo.companyList){
                 pageInfo.companyName = ['DIFY Instance Name', pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
