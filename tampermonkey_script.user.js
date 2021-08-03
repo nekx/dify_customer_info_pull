@@ -216,7 +216,7 @@ function campaignCopy(){
         })
         campaignNameContainer.addEventListener("click", function(e){
             if (e.shiftKey){
-                clipboardCopy(campaignID + '\n' + campaignName)
+                clipboardCopy(campaignID + ' : ' + campaignName)
             }
             else{
                 clipboardCopy(campaignID)
