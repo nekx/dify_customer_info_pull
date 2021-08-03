@@ -15,7 +15,7 @@
 // @grant    GM_openInTab
 // @grant    GM_setValue
 // @grant    GM_getValue
-// @version 4.0.3
+// @version 4.0.4
 // ==/UserScript==
 
 
@@ -27,6 +27,7 @@ const accountImgTemplate = GM_getResourceText ("accountImgCSSTemplate");  // htm
 
 GM_addStyle ( cssTemplate );                             // applies cssTemplate
 pageInfo = []
+campaignList = []
   
 var origOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function() {
@@ -67,9 +68,38 @@ XMLHttpRequest.prototype.open = function() {
                 delete pageInfo.companyList
             }
         }
+        else if(this.responseURL.includes("campaigns?")){
+            results = JSON.parse(this.responseText)['results']
+            for (result in results){
+                result = results[result]
+                campaignList.push([result['id'], result['name']])
+            }
+        }
+        else if(this.responseURL.includes("activeCopy=true")){
+            var observer = new MutationObserver(function(mutations){
+                for (let mutation of mutations) {
+                    let addedNode = mutation.addedNodes[0]
+                    try{
+                        if (addedNode.href){
+                            campaignID = addedNode.href.slice(39, -6)
+                            if (campaignID == campaignList[campaignList.length-1][0]){
+                                campaignCopy()
+                            }
+                        }
+                    }
+                    catch(e){
+                        if (e.name != 'TypeError'){
+                            throw(e)
+                        }
+                    }
+                }
+            })
+            var options = {subtree: true, childList: true}
+            observer.observe(document.getElementsByClassName('campaigns-table')[0], options)
+
+        }
         
     });
-    
 
     origOpen.apply(this, arguments);
 };
@@ -167,4 +197,56 @@ function copyPopup(){
     })
 
 return false;
+}
+
+function campaignCopy(){
+    targetList = []
+    for (var i = 0; i <= campaignList.length-1; i++){
+        let campaignID = campaignList[i][0]
+        let campaignName = campaignList[i][1]
+        let selector = "a[href=\'campaigns/" + campaignID + "/leads\']"
+        let targetElem = document.querySelectorAll(selector)[0]
+        let container = targetElem.parentNode.parentNode.parentNode
+        let campaignNameContainer = container.childNodes[3]
+        let campaignNameSpan = campaignNameContainer.childNodes[0]
+        let flipIcon = container.childNodes[1].childNodes[1]
+        targetList.push([campaignNameSpan, campaignID, campaignName])
+        flipIcon.addEventListener("click", function(e){
+            campaignFlip(campaignNameSpan, campaignID, campaignName)
+        })
+        campaignNameContainer.addEventListener("click", function(e){
+            if (e.shiftKey){
+                clipboardCopy(campaignID + '\n' + campaignName)
+            }
+            else{
+                clipboardCopy(campaignID)
+            }
+        })
+        campaignNameContainer.addEventListener("contextmenu", function(e){
+            clipboardCopy(campaignName)
+        })
+        campaignNameContainer.addEventListener("auxclick", function(e){
+            console.log(e.button)
+            if (e.button == 1) {
+                    e.preventDefault();
+                }
+        })
+    }
+    allClickTarget = document.getElementsByClassName('fa-pie-chart')[0]
+    allClickTarget.addEventListener("click", function(e){
+        for (var x = 0; x <= targetList.length-1; x++){
+            campaignFlip(targetList[x][0], targetList[x][1], targetList[x][2])
+        }
+    })
+
+}
+
+function campaignFlip(target, campaignID, campaignName){
+    if (target.innerText == campaignID){
+        target.innerText = campaignName
+    }
+    else {
+        target.innerText = campaignID
+    }
+    target.setAttribute("style", "white-space:normal!important")
 }
