@@ -7,42 +7,48 @@
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 4.0.6
+// @version 4.0.7
 // ==/UserScript==
 
 pageInfo = []
 campaignList = []
   
+// monkey patches XMLHttpRequest.prototype.open to intercept certain network requests and gather partaining data
 var origOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function() {
 
     this.addEventListener('load', function() {
-
+        // check to see if we're on a client page and runs if we are
         let pageCheck = window.location.href.includes('clients/')
         if (pageCheck){
+            // if request is from '/api/clients/' or '/onboarding/ipc'
             if (this.responseURL.includes("/api/clients/") && !this.responseURL.includes('/onboarding/ipc')){
             
-    //            console.log(this)
+                // grab DIFY Name, DIFY ID, and DIFY Instance ID, appending to pageInfo
                 parsedResponse = JSON.parse(this.responseText)
                 pageInfo.businessName = ['DIFY Name', parsedResponse.name]
                 pageInfo.businessID = ['DIFY ID', parsedResponse.id]
                 pageInfo.companyID = ['DIFY Instance ID', parsedResponse.companyId]
+                // if we've grabbed the company list already, find the DIFY Instance name by referencing the DIFY ID we've grabbed
                 if(pageInfo.companyList){
                     pageInfo.companyName = ['DIFY Instance Name', pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
                     delete pageInfo.companyList
                 }
+                // if they have a FB Page connected, grab it's ID
                 try{
                     pageInfo.facebookPageID = ['FB Page ID', parsedResponse.socialAccounts[0].id]
                 }
                 catch(e){
                     console.log('Couldn\'t find FB ID')
                 }
+                // if they have a FB ad account connected, grab it's ID
                 try{
                 pageInfo.facebookAdID = ['FB Ad ID', parsedResponse.facebookAdAccountId.slice(4)]
                 }
                 catch(e){
                     console.log('Couldn\'t find FB ad ID')
                 }
+                // sets the client title to copy all page info with copyData(pageInfo) on click
                 var clientName = document.getElementsByClassName('title')[0]
                 addEvent(clientName, "click", function(e){
                     e.preventDefault();
@@ -50,14 +56,18 @@ XMLHttpRequest.prototype.open = function() {
                     return false;
                 })
             }
+            // if request is from 'currentUser'
             else if(this.responseURL.includes("currentUser")){
+                // grabs companyList and checks to see if we have companyID. If we do, set's the DIFY Instance Name and deletes teh companyList
                 pageInfo.companyList = JSON.parse(this.responseText).companies
                 if (pageInfo.companyID){
                     pageInfo.companyName = ['DIFY Instance Name',pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
                     delete pageInfo.companyList
                 }
             }
+            // if request is from 'campaigns?'
             else if(this.responseURL.includes("campaigns?")){
+                // grabs campaigns and then checks each campaign ID to see if it's already in campaignList. If not, it is pushed
                 results = JSON.parse(this.responseText)['results']
                 for (result in results){
                     result = results[result]
@@ -66,8 +76,11 @@ XMLHttpRequest.prototype.open = function() {
                     }
                 }
             }
+            // if request is from 'activeCopy=true' or 'facebook/picture'
             else if((this.responseURL.includes("activeCopy=true") || this.responseURL.includes("facebook/picture"))){
+                // set mutation observer on the campaign list node
                 var campaignObserver = new MutationObserver(function(mutations){
+                    // if mutation is and added node and it's href value matches a campaign ID in campaignsList, call campaignCopy()
                     for (let mutation of mutations) {
                         let addedNode = mutation.addedNodes[0]
                         try{
@@ -85,22 +98,22 @@ XMLHttpRequest.prototype.open = function() {
                         }
                     }
                 })
-               var options = {subtree: true, childList: true}
-//                campaignObserver.observe(document.getElementsByClassName('campaigns-table')[0], options)
-                campaignObserver.observe(document.querySelector('[id^="ko-component"]'), options)
-
+            var options = {subtree: true, childList: true}
+            campaignObserver.observe(document.querySelector('[id^="ko-component"]'), options)
             }
         }   
+        // if not a client page, dump all info we have
         else{
             pageInfo = []
             campaignList = []
         }
     });
 
+    // call the actual XMLHttpRequest.prototype.open function and apply the provided arguments
     origOpen.apply(this, arguments);
 };
 
-
+// formats the data before it's copied by clipboardCopy()
 function copyData(){
     data = []
     for (element in this.pageInfo){
@@ -125,8 +138,10 @@ function clipboardCopy(copy){
     return false;
 }
 
+// sets event listeners for each campaign element found in campaignList
 function campaignCopy(){
     targetList = []
+    // for campaigns in campaignList
     for (var i = 0; i <= campaignList.length-1; i++){
         let campaignID = campaignList[i][0]
         let campaignName = campaignList[i][1]
@@ -137,9 +152,11 @@ function campaignCopy(){
         let campaignNameSpan = campaignNameContainer.childNodes[0]
         let flipIcon = container.childNodes[1].childNodes[1]
         targetList.push([campaignNameSpan, campaignID, campaignName])
+        //adds left click event of campaignFlip() to the flipIcon
         addEvent(flipIcon, "click", function(e){
             campaignFlip(campaignNameSpan, campaignID, campaignName)
         })
+        // adds left click event of clipboardCopy(campaignID), shift modififer includes campaignName
         addEvent(campaignNameContainer, "click", function(e){
             if (e.shiftKey){
                 clipboardCopy(campaignID + ' : ' + campaignName)
@@ -148,15 +165,12 @@ function campaignCopy(){
                 clipboardCopy(campaignID)
             }
         })
+        // adds right click event of clipboardCopy(campaignName)
         addEvent(campaignNameContainer, "contextmenu", function(e){
             clipboardCopy(campaignName)
         })
-        addEvent(campaignNameContainer, 'auxclick', function(e){
-            if (e.button == 1) {
-                    e.preventDefault();
-                }
-        })
     }
+    // adds left click event to pie-chart icon that calls campaignFlip on all campaigns
     allClickTarget = document.getElementsByClassName('fa-pie-chart')[0]
     addEvent(allClickTarget, "click", function(e){
         e.preventDefault
@@ -167,6 +181,7 @@ function campaignCopy(){
 
 }
 
+// flips target element's innerText with provided campaignID and campaignName
 function campaignFlip(target, campaignID, campaignName){
     parentDiv = target.parentElement.parentElement
     if (target.innerText == campaignID){
@@ -175,10 +190,13 @@ function campaignFlip(target, campaignID, campaignName){
     else {
         target.innerText = campaignID
     }
+    // this is to remove the character limit for campaign names that are longer than ~30 characters
     target.setAttribute("style", "white-space:normal!important")
     parentDiv.setAttribute("style", "height: fit-content!important")
 }
 
+// eventListener checker. mainly used for debugging, but plan to use it to verify some things in the future
+// basically just calls addEventListener() for a target, but also modifies it's attribute to show that it's been added
 function addEvent(target, type,  func){
 
     if (!target.hasAttribute('added')){
