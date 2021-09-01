@@ -7,7 +7,7 @@
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 4.0.7
+// @version 4.0.8
 // ==/UserScript==
 
 pageInfo = []
