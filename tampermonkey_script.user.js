@@ -117,7 +117,7 @@ XMLHttpRequest.prototype.open = function() {
 function copyData(){
     data = []
     for (element in this.pageInfo){
-        data.push(`${this.pageInfo[element][0]}: ${this.pageInfo[element][1]}\n\n`)
+        data.push(`${this.pageInfo[element][0]}: ${this.pageInfo[element][1]}\n`)
     }
     clipboardCopy(data.join(''))
 
