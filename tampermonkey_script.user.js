@@ -7,11 +7,12 @@
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 4.0.8
+// @version 4.1.0
 // ==/UserScript==
 
 pageInfo = []
 campaignList = []
+interestList = []
   
 // monkey patches XMLHttpRequest.prototype.open to intercept certain network requests and gather partaining data
 var origOpen = XMLHttpRequest.prototype.open;
@@ -19,8 +20,9 @@ XMLHttpRequest.prototype.open = function() {
 
     this.addEventListener('load', function() {
         // check to see if we're on a client page and runs if we are
-        let pageCheck = window.location.href.includes('clients/')
-        if (pageCheck){
+        let clientPageCheck = window.location.href.includes('clients/')
+        let campaignEditorCheck = window.location.href.includes('campaigns/')
+        if (clientPageCheck){
             // if request is from '/api/clients/' or '/onboarding/ipc'
             if (this.responseURL.includes("/api/clients/") && !this.responseURL.includes('/onboarding/ipc')){
             
@@ -102,10 +104,45 @@ XMLHttpRequest.prototype.open = function() {
             campaignObserver.observe(document.querySelector('[id^="ko-component"]'), options)
             }
         }   
+        // if current page is the campaign editor
+        else if (campaignEditorCheck){
+            // if request is for audience
+            if (this.responseURL.includes("library/audience")){
+                // grab response and concat the different interests into interests array
+                response = JSON.parse(this.responseText)[0]['audience']['additionalDemographics']
+                work_employers = response['work_employers']
+                work_positions = response['work_positions']
+                interests = response['interests'].concat(work_employers).concat(work_positions)
+                // filters interests for name + id and pushes it to the interestList array
+                for (index in interests){
+                    interest = interests[index]
+                    interestList.push({'id' : interest['id'], 'name' : interest['name']})
+                }
+                // event listenter for shift + I on the document
+                // adds the interest ID to each of the elements
+                document.addEventListener('keydown', function(e){
+                    if (e.shiftKey && e.key === 'I'){
+                        var group_items = document.getElementsByClassName('group-item')
+                        for (index in group_items){
+                            item = group_items[index]
+                            if (item.innerText){
+                                interest_name = item.innerText.slice(0,-2)
+                                interest_index = interestList.map((el) => el.name).indexOf(interest_name)
+                                if (interest_index > -1){
+                                    item.innerText = `${item.innerText.slice(0, -2)} \n ${interestList[interest_index].id}`
+                                }
+                            }
+                        }
+                    }
+                }, false)
+            }
+
+        }
         // if not a client page, dump all info we have
         else{
             pageInfo = []
             campaignList = []
+            interestList = []
         }
     });
 
