@@ -7,7 +7,7 @@
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 4.2.0
+// @version 4.3.0
 // ==/UserScript==
 
 pageInfo = []
@@ -144,10 +144,15 @@ XMLHttpRequest.prototype.open = function() {
 };
 
 // formats the data before it's copied by clipboardCopy()
-function copyData(){
+function copyData(additionalData){
     data = []
     for (element in this.pageInfo){
         data.push(`${this.pageInfo[element][0]}: ${this.pageInfo[element][1]}\n`)
+    }
+    if (additionalData){
+        for (field in additionalData){
+            data.push(`${field}: ${additionalData[field]}\n`)
+        }
     }
     clipboardCopy(data.join(''))
 
@@ -191,14 +196,22 @@ function campaignCopy(){
             if (e.shiftKey){
                 clipboardCopy(campaignID + ' : ' + campaignName)
             }
+            else if (e.altKey){
+                copyData({
+                    "Campaign ID": campaignID,
+                    "Campaign Name": campaignName
+                })
+            }
             else{
                 clipboardCopy(campaignID)
             }
         })
         // adds right click event of clipboardCopy(campaignName)
         addEvent(campaignNameContainer, "contextmenu", function(e){
-            clipboardCopy(campaignName)
+            e.preventDefault();
+                       return false;
         })
+        copyError()
     }
     // adds left click event to pie-chart icon that calls campaignFlip on all campaigns
     allClickTarget = document.getElementsByClassName('fa-pie-chart')[0]
@@ -225,13 +238,22 @@ function campaignFlip(target, campaignID, campaignName){
     parentDiv.setAttribute("style", "height: fit-content!important")
 }
 
+// attaches function to copy error message to clipboard for error'd campaigns
+function copyError(){
+    const errors = document.querySelectorAll("span.red.underlined")
+    errors.forEach((error)=>{
+        addEvent(error, "click", ()=>{
+            const message = document.getElementsByClassName("tooltip-inner")[0].textContent
+            clipboardCopy(message)
+        })
+    })
+}
+
 // eventListener checker. mainly used for debugging, but plan to use it to verify some things in the future
 // basically just calls addEventListener() for a target, but also modifies it's attribute to show that it's been added
 function addEvent(target, type,  func){
-
     if (!target.hasAttribute('added')){
         target.addEventListener(type, func)
         target.setAttribute('added', '')
     }
-
 }
