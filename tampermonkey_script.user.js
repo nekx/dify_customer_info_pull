@@ -28,27 +28,20 @@ XMLHttpRequest.prototype.open = function() {
             
                 // grab DIFY Name, DIFY ID, and DIFY Instance ID, appending to pageInfo
                 parsedResponse = JSON.parse(this.responseText)
-                pageInfo.businessName = ['DIFY Name', parsedResponse.name]
-                pageInfo.businessID = ['DIFY ID', parsedResponse.id]
-                pageInfo.companyID = ['DIFY Instance ID', parsedResponse.companyId]
+                pageInfo.companyID = ['Partner ID', parsedResponse.companyId]
                 // if we've grabbed the company list already, find the DIFY Instance name by referencing the DIFY ID we've grabbed
                 if(pageInfo.companyList){
-                    pageInfo.companyName = ['DIFY Instance Name', pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
+                    pageInfo.companyName = ['Partner Name', pageInfo.companyList.find((element) => element.id == pageInfo.companyID[1]).name]
                     delete pageInfo.companyList
                 }
+                pageInfo.businessName = ['Customer Name', parsedResponse.name]
+                pageInfo.businessID = ['Customer DIFY ID', parsedResponse.id]
                 // if they have a FB Page connected, grab it's ID
                 try{
                     pageInfo.facebookPageID = ['FB Page ID', parsedResponse.socialAccounts[0].id]
                 }
                 catch(e){
                     console.log('Couldn\'t find FB ID')
-                }
-                // if they have a FB ad account connected, grab it's ID
-                try{
-                pageInfo.facebookAdID = ['FB Ad ID', parsedResponse.facebookAdAccountId.slice(4)]
-                }
-                catch(e){
-                    console.log('Couldn\'t find FB ad ID')
                 }
                 // sets the client title to copy all page info with copyData(pageInfo) on click
                 var clientName = document.getElementsByClassName('title')[0]
