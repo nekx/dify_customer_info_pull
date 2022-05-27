@@ -3,11 +3,12 @@
 // @description Allow easy copying of customer data from a given DIFY page
 // @name     Customer info grab
 // @include  http*://dify.tigerpistol.com/*
+// @include  http*://*pistollabs.com/*
 // @noframes
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 4.3.1
+// @version 4.3.2
 // ==/UserScript==
 
 pageInfo = []
@@ -39,6 +40,13 @@ XMLHttpRequest.prototype.open = function() {
                 // if they have a FB Page connected, grab it's ID
                 try{
                     pageInfo.facebookPageID = ['FB Page ID', parsedResponse.socialAccounts[0].id]
+                }
+                catch(e){
+                    console.log('Couldn\'t find FB ID')
+                }
+                try{
+                    const adAccountID = parsedResponse.facebookAdAccountId.split('_')[1]
+                    pageInfo.facebookAdAccountID = ['FB Ad Account', adAccountID]
                 }
                 catch(e){
                     console.log('Couldn\'t find FB ID')
