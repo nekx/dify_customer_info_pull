@@ -7,7 +7,7 @@
 // @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 4.3.0
+// @version 4.3.1
 // ==/UserScript==
 
 pageInfo = []
@@ -47,7 +47,7 @@ XMLHttpRequest.prototype.open = function() {
                 var clientName = document.getElementsByClassName('title')[0]
                 addEvent(clientName, "click", function(e){
                     e.preventDefault();
-                    copyData(pageInfo);
+                    copyData();
                     return false;
                 })
             }
@@ -144,8 +144,8 @@ XMLHttpRequest.prototype.open = function() {
 };
 
 // formats the data before it's copied by clipboardCopy()
-function copyData(additionalData){
-    data = []
+function copyData(additionalData=false){
+    const data = []
     for (element in this.pageInfo){
         data.push(`${this.pageInfo[element][0]}: ${this.pageInfo[element][1]}\n`)
     }
