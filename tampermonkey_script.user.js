@@ -1,14 +1,12 @@
 // ==UserScript==
 // @author Chase Walker
 // @description Allow easy copying of customer data from a given DIFY page
-// @name     Customer info grab
+// @name     Customer info grab v2
 // @include  http*://dify.tigerpistol.com/*
 // @include  http*://*pistollabs.com/*
 // @noframes
-// @updateURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
-// @downloadURL https://github.com/nekx/dify_customer_info_pull/raw/main/tampermonkey_script.user.js
 // @grant    GM_setClipboard
-// @version 5.0.0
+// @version 5.0.1
 // ==/UserScript==
 
 function ClientPage (name, companyID, difyID, facebookAdAccountID=null, facebookAdAccountName=null, facebookPageID=null, facebookPageName=null) {
@@ -29,14 +27,14 @@ const apiEndpoints = {
 
 }
 const targetRequestEndpointFunctions = {
-  ".*campaigns(?!.*activeCopy)": function(event){
+  ".*campaigns?(?!.*activeCopy)": function(event){
     responseData = JSON.parse(event.target.responseText)
-    console.log("campaigns endpoint function")
+    console.log(event)
   },
   ".*\/api\/clients\/(?!.*onboarding)": function(event){
     guidRegex = /[^-]{8}-[^-]{4}-[^-]{4}-[^-]{4}-[^-]{12}/
-    difyID = event.target.requestURL.match(guidRegex)[0]
     responseData = JSON.parse(event.target.responseText)
+    difyID = responseData.id
     businessName = responseData.name
     companyID = responseData.companyId
     facebookPageID = responseData.socialAccounts[0].id
@@ -45,7 +43,6 @@ const targetRequestEndpointFunctions = {
     facebookAdAccountName = responseData.facebookAdAccountName
     clientPage = new ClientPage(businessName, companyID, difyID, facebookAdAccountID, facebookAdAccountName, facebookPageID, facebookPageName)
     clientPageString = JSON.stringify(clientPage,null,2).replaceAll('"', '').replace(/[{}]/g, '')
-    console.log(clientPageString)
     const clientName = document.getElementsByClassName('title')[0]
     clientName.addEventListener("click", () => clipboardCopy(clientPageString))
   }
@@ -62,7 +59,6 @@ const interceptAndAddEventListener = (XMLHttpRequest) => {
     if (!verifiedTargetFunction){
       return;
     }
-    console.log(requestURL)
     this.addEventListener('load', (event) => verifiedTargetFunction(event));
   }
 }
@@ -87,18 +83,14 @@ const getTargetFunction = (requestURL,requestEndpointFunctions) => {
 
 interceptAndAddEventListener(XMLHttpRequest)
 
-// copies provided copy and creates an alert confirming what was copied
 function clipboardCopy(copy){
-  console.log(copy)
-    // opens up the clipboard and passes success / err
     navigator.clipboard.writeText(copy).then(
         function(){
-            alert("Copied: \n" + copy); // success
+            alert("Copied: \n" + copy);
         })
         .catch(
         function(error) {
-            alert(error); // error
+            alert(error);
         });
     return false;
 }
-
