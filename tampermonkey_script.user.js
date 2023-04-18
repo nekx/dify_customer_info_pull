@@ -6,7 +6,7 @@
 // @include  http*://*pistollabs.com/*
 // @noframes
 // @grant    GM_setClipboard
-// @version 5.0.1
+// @version 5.0.2
 // ==/UserScript==
 
 function ClientPage (name, companyID, difyID, facebookAdAccountID=null, facebookAdAccountName=null, facebookPageID=null, facebookPageName=null) {
@@ -23,13 +23,35 @@ const targetPages = [
   "clients/"
 ]
 
-const apiEndpoints = {
-
-}
 const targetRequestEndpointFunctions = {
-  ".*campaigns?(?!.*activeCopy)": function(event){
-    responseData = JSON.parse(event.target.responseText)
-    console.log(event)
+  ".*internal.*campaigns\?(?!.*activeCopy)": function(event){
+    responseData = JSON.parse(event.target.responseText).results
+    let campaignsList = []
+    responseData.forEach(campaign => {
+      campaignName = campaign.name
+      campaignId = campaign.id
+      let nameXpathSelector = `//div[@class="name-column customer-overview"]/span[text()="${campaignName}"]`
+      campaignsList.push([campaignId, campaignName, nameXpathSelector])
+      var campaignObserver = new MutationObserver(function (mutations) {
+        for (let mutation of mutations) {
+          let addedNode = mutation.addedNodes[0]
+          const campaignNode = campaignsList.find((element, index) => {
+            campaignIndex = index
+            return element[1] == addedNode?.textContent
+          }) ?? false
+          if (campaignNode){
+            campaignInfo = campaignsList.splice(campaignIndex, 1)
+            addedNode.parentNode.addEventListener("click", () => { console.log("worked") }, false )
+            console.log(addedNode)
+            console.log(campaignIndex)
+            console.log(campaignInfo)
+          }
+        }
+      })
+      var options = { subtree: true, childList: true }
+      campaignObserver.observe(document.querySelector('[id^="ko-component"]'), options)
+    })
+    console.log(campaignsList)
   },
   ".*\/api\/clients\/(?!.*onboarding)": function(event){
     guidRegex = /[^-]{8}-[^-]{4}-[^-]{4}-[^-]{4}-[^-]{12}/
@@ -37,15 +59,27 @@ const targetRequestEndpointFunctions = {
     difyID = responseData.id
     businessName = responseData.name
     companyID = responseData.companyId
-    facebookPageID = responseData.socialAccounts[0].id
-    facebookPageName = responseData.socialAccounts[0].name
+    facebookPageID = responseData.socialAccounts[0]?.id
+    facebookPageName = responseData.socialAccounts[0]?.name
     facebookAdAccountID = responseData.facebookAdAccountId
     facebookAdAccountName = responseData.facebookAdAccountName
     clientPage = new ClientPage(businessName, companyID, difyID, facebookAdAccountID, facebookAdAccountName, facebookPageID, facebookPageName)
-    clientPageString = JSON.stringify(clientPage,null,2).replaceAll('"', '').replace(/[{}]/g, '')
+    clientPageString = formatClientPage(clientPage)
     const clientName = document.getElementsByClassName('title')[0]
     clientName.addEventListener("click", () => clipboardCopy(clientPageString))
   }
+}
+
+const campaignFlip = (campaignsList) => {
+
+}
+
+const formatClientPage = (clientPage) => {
+  clientPageString = JSON.stringify(clientPage,null,2)
+                         .replaceAll('"', '')
+                         .replace(/[{},]/g, '')
+                         .replace(/.*null$/gm, '')
+  return clientPageString
 }
 
 const interceptAndAddEventListener = (XMLHttpRequest) => {
